@@ -28,6 +28,9 @@ model User {
   updatedAt   DateTime  @updatedAt
 
   address Address[]
+  ratings Ratings[]
+
+  replyRating ReplyRating[]
 }
 
 model Address {
@@ -69,6 +72,8 @@ model Image {
   id        Int      @id @default(autoincrement())
   name      String
   path      String
+  order     Int?
+  isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -83,23 +88,32 @@ model UnitMeansurement {
   Products  Products[]
 }
 
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Products[]
+}
+
 model Products {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
+  type        String
+  sku         String
+  externalId  String?
+  barcode     String?
   shortName   String
   description String
-  image       String?
-  price       Decimal?
-  promo       Decimal?
-  typePromo   String?
-  amount      Int?
   width       Decimal?
   height      Decimal?
   depth       Decimal?
   weight      Decimal?
-
-  categoryId Int?
-  category   Category? @relation(fields: [categoryId], references: [id])
+  dateStart   DateTime?
+  dateEnd     DateTime?
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
 
   brandId Int?
   brand   Brand? @relation(fields: [brandId], references: [id])
@@ -113,6 +127,12 @@ model Products {
   unitMeansurement   UnitMeansurement? @relation(fields: [unitMeansurementId], references: [id])
 
   Stock Stock[]
+
+  tags Tag[]
+
+  ratings Ratings[]
+
+  tablePriceProducts TablePriceProducts[]
 }
 
 model Stock {
@@ -124,4 +144,59 @@ model Stock {
   updatedAt DateTime  @updatedAt
   productId Int?
   product   Products? @relation(fields: [productId], references: [id])
+}
+
+model Ratings {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId Int
+  product   Products @relation(fields: [productId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  replyRating ReplyRating[]
+}
+
+model ReplyRating {
+  id        Int      @id @default(autoincrement())
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ratingId Int
+  rating   Ratings @relation(fields: [ratingId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model TablePrice {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  default     Boolean   @default(false)
+  promotion   Boolean   @default(false)
+  value       Decimal?
+  type        String?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tablePriceProducts TablePriceProducts[]
+}
+
+model TablePriceProducts {
+  id           Int        @id @default(autoincrement())
+  tablePriceId Int
+  tablePrice   TablePrice @relation(fields: [tablePriceId], references: [id])
+  productId    Int
+  product      Products   @relation(fields: [productId], references: [id])
+  value        Decimal?
+  type         String?
 }
