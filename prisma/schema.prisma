@@ -14,12 +14,114 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  phone       String
+  password    String
+  gender      String?
+  role        String?
+  cpf         String
+  dateOfBirth DateTime
+  lock        DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  address Address[]
+}
+
+model Address {
+  id           Int      @id @default(autoincrement())
+  idDefault    Boolean  @default(false)
+  name         String
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  zipCode      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id       Int    @id @default(autoincrement())
+  name     String
+  fatherId Int?
+
+  category   Category?  @relation("CategoryAutoRelation", fields: [fatherId], references: [id])
+  categories Category[] @relation("CategoryAutoRelation")
+
+  Products Products[]
+}
+
+model Brand {
+  id       Int        @id @default(autoincrement())
+  name     String
+  Products Products[]
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String    @unique
-  phone     String
-  password  String
-  lock      DateTime?
+  path      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId Int?
+  product   Products? @relation(fields: [productId], references: [id])
+}
+
+model UnitMeansurement {
+  id        Int        @id @default(autoincrement())
+  name      String
+  shortName String
+  Products  Products[]
+}
+
+model Products {
+  id          Int      @id @default(autoincrement())
+  name        String
+  shortName   String
+  description String
+  image       String?
+  price       Decimal?
+  promo       Decimal?
+  typePromo   String?
+  amount      Int?
+  width       Decimal?
+  height      Decimal?
+  depth       Decimal?
+  weight      Decimal?
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  brandId Int?
+  brand   Brand? @relation(fields: [brandId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images Image[]
+
+  unitMeansurementId Int?
+  unitMeansurement   UnitMeansurement? @relation(fields: [unitMeansurementId], references: [id])
+
+  Stock Stock[]
+}
+
+model Stock {
+  id        Int       @id @default(autoincrement())
+  amount    Int
+  costPrice Decimal?
+  control   String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  productId Int?
+  product   Products? @relation(fields: [productId], references: [id])
 }
